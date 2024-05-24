@@ -6,9 +6,6 @@
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <a href="{{route('task.create')}}">
-                <button class="btn btn-primary">Add New</button>
-            </a>
         </div>
     </nav>
 </header>
