@@ -8,9 +8,6 @@ class ProductService implements ProductInterface
 {
     public function index ()
     {
-        $json_storage_file = storage_path('app/product.json');
-        $json_data = file_get_contents($json_storage_file);
-        $data['products'] = json_decode($json_data, true);
         $data['title'] = "Products";
         $data['description'] = "Show product listing according to their  creation";
         $data['keywords'] = "Product Listing";
@@ -20,12 +17,13 @@ class ProductService implements ProductInterface
     public function store( $request )
     {
         $request = $request['data'];
-        $data = 
+        $data =
         [
-            'product_name'      => $request['product_name'],
-            'quantity_in_stock' => $request['quantity_in_stock'],
-            'price_per_item'    => $request['price_per_item'],
-            'created_at'        => Carbon::now()->format('d-m-Y H:i:s')
+            'product_name'          => $request['product_name'],
+            'quantity_in_stock'     => $request['quantity_in_stock'],
+            'price_per_item'        => $request['price_per_item'],
+            'total_value_number'    => $request['total_value_number'],
+            'created_at'            => Carbon::now()->format('d-m-Y H:i:s')
         ];
 
         $json_storage_file = 'product.json';
@@ -36,5 +34,14 @@ class ProductService implements ProductInterface
 
         $old_data[] = $data;
         Storage::put($json_storage_file, json_encode($old_data));
+        return $old_data;
+    }
+
+    public function getProductsByAjax(  )
+    {
+        $json_storage_file = storage_path('app/product.json');
+        $json_data = file_get_contents($json_storage_file);
+        $products = json_decode($json_data, true);
+        return $products;
     }
 }

@@ -14,15 +14,28 @@ class ProductController extends Controller
         $this->product = $productInterface;
     }
 
-    public function index ( )
+    public function index ( Request $request )
     {
         $data = $this->product->index();
-        return view('frontend.home.index',compact('data'));
+        return view('frontend.home.index',compact( 'data' ));
     }
 
     public function store ( Request $request )
     {
-        $this->product->store( $request->all() );
-        return response()->json(['success' => true]);
+        $data = $this->product->store( $request->all() );
+        if( count( $data ) > 0 )
+            return apiSuccessResponse();
+        else
+            return apiErrorResponse();
+    }
+
+    public function getProducts ( Request $request )
+    {
+        if( $request->ajax() )
+            $data['products'] = $this->product->getProductsByAjax();
+        if( $data['products'] > 0 )
+            return apiSuccessResponse( $data['products'] );
+        else
+            return apiErrorResponse();
     }
 }

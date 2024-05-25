@@ -4,8 +4,14 @@
 @section('keywords', $data['keywords'])
 @section('page-css')
 <style>
-    label {
+    label,.grand_total_col {
         font-weight: bold;
+    }
+    .grand_total_col {
+        font-size: 30px !important;
+    }
+    #productsTable {
+        margin-bottom: 6rem !important;
     }
 </style>
 @endsection
@@ -48,7 +54,7 @@
         </div>
     </form>
 
-    <table class="mt-5 table table-striped mb-5"  id="sortable-table">
+    <table class="mt-5 table table-striped" id="productsTable">
         <thead>
             <tr>
                 <th scope="col">#</th>
@@ -57,7 +63,8 @@
                 <th scope="col">Price per Item</th>
                 <th scope="col">Total Value Number</th>
                 <th scope="col">Created At</th>
-                <th scope="col">Action</th>
+                <th scope="col">Grand Total</th>
+                {{-- <th scope="col">Action</th> --}}
             </tr>
         </thead>
         <tbody id="tbody">
@@ -73,97 +80,156 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxy/1.6.1/scripts/jquery.ajaxy.min.js" integrity="sha512-bztGAvCE/3+a1Oh0gUro7BHukf6v7zpzrAb3ReWAVrt+bVNNphcl2tDTKCBr5zk7iEDmQ2Bv401fX3jeVXGIcA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 
-let quantity_in_stock = 0,price_per_item=0, totalNumberValue = 0;
-$(document).on('input','#quantity_in_stock',function(){
-    quantity_in_stock = $(this).val();
-    quantity_in_stock = quantity_in_stock <= 0 ? 0 : parseInt(quantity_in_stock);
-    resetValue('#quantity_in_stock',quantity_in_stock);
-    calculateTotalNumberValue(quantity_in_stock,price_per_item);
-});
-$(document).on('input','#price_per_item',function(){
-   price_per_item = $(this).val();
-   price_per_item = price_per_item <= 0 ? 0 : parseInt(price_per_item);
-   resetValue('#price_per_item',price_per_item);
-   calculateTotalNumberValue(quantity_in_stock,price_per_item);
-});
+    let quantity_in_stock = 0,price_per_item = 0, totalNumberValue = 0;
+    $(document).ready(function () {
+        fetchProducts();
+    });
 
-function resetValue(resetInputField,value) {
-    $(resetInputField).val(value < 0 ? parseInt(0) : parseInt(value));
-}
-
-function calculateTotalNumberValue(quantity_in_stock,price_per_item) {
-    quantity_in_stock = quantity_in_stock == NaN ? 0 : parseInt(quantity_in_stock);
-    totalNumberValue = quantity_in_stock*price_per_item;
-    $totalNumberValue = totalNumberValue == NaN ? 0 : totalNumberValue;
-    $('#total_value_number').val(totalNumberValue);
-}
-
-$('#product_form').submit(function(e){
-    e.preventDefault();   
-
-    let required_field_array = [];
-    let product_name = $('#product_name').val();
-    let quantity_in_stock = $('#quantity_in_stock').val();
-    let price_per_item = $('#price_per_item').val();
-    let total_value_number = $('#total_value_number').val();
-
-    console.log("quantity_in_stock",quantity_in_stock);
-    let data = {
-        'product_name':product_name,
-        'quantity_in_stock':quantity_in_stock,
-        'price_per_item':price_per_item,
-        'total_value_number':total_value_number,
-    }
-    for (const key in data) {
-        if (data[key] == [] || data[key] == NaN) {
-            required_field_array.push(key);
-        }
-    }
-    if (required_field_array.length > 0) {
-        validate(required_field_array);
-    }
-    else {
+    function fetchProducts() {
         $.ajax({
-            type: "POST",
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            url: "{{route('product.store')}}",
-            data: {
-                data
-            },
-            dataType: "json",
+            type: "GET",
+            url: "{{route('products')}}",
             success: function (response) {
-                if(response.success) {
-                    toastr.success("Product Added Successfully");
-                    $('#product_form')[0].reset();
-                }else {
-                    toastr.danger("Fields are missing");
-                }
+                if( response.status ) {
+                    let html = '';
+                    let grand_total = 0;
+                    $('#tbody').empty();
+                    response.data.forEach((product,index) => {
+                        grand_total += parseInt(product.total_value_number);
+                        html+=`<tr>
+                            <td>${index+1}</td>
+                            <td>${product.product_name}</td>
+                            <td>${product.quantity_in_stock}</td>
+                            <td>${product.price_per_item}</td>
+                            <td class="product_total_value_number">${product.total_value_number}</td>
+                            <td>${product.created_at}</td>
+                            <td></td>
+                        </tr>`;
+                        
+                    });
+                    html+=`
+                    <tr>
+                        <td colspan="6"></td>
+                        <td class="grand_total_col">${grand_total}</td>
+                    </tr>`;
+                    $('#tbody').append(html);
+                }               
             }
         });
     }
-});
 
-function validate(required_field_array) {
-    let custom_validation_message_array = [];
-    let reverse_custom_validation_message_array = []; 
-    for (let i = 0; i < required_field_array.length; i++) {
 
-        if (required_field_array[i].includes('product_name')) {
-            custom_validation_message_array.push("Product Name");
+    //For Quantity In Stock
+    $(document).on('input','#quantity_in_stock',function(){
+
+        quantity_in_stock = $(this).val();
+        quantity_in_stock = quantity_in_stock <= 0 ? 0 : parseInt(quantity_in_stock);
+        resetValue('#quantity_in_stock',quantity_in_stock);
+        calculateTotalNumberValue(quantity_in_stock,price_per_item);
+
+    });
+
+    //For Price Per Item
+    $(document).on('input','#price_per_item',function(){
+
+        price_per_item = $(this).val();
+        price_per_item = price_per_item <= 0 ? 0 : parseInt(price_per_item);
+        resetValue('#price_per_item',price_per_item);
+        calculateTotalNumberValue(quantity_in_stock,price_per_item);
+
+    });
+
+    // For Reset value
+    function resetValue(resetInputField,value) {
+        $(resetInputField).val(value <= 0 ? parseInt(0) : parseInt(value));
+    }
+
+    // Calculate Total Number Value 
+    function calculateTotalNumberValue(quantity_in_stock,price_per_item) {
+
+        quantity_in_stock = quantity_in_stock == NaN ? 0 : parseInt(quantity_in_stock);
+        totalNumberValue = quantity_in_stock * price_per_item;
+        $totalNumberValue = totalNumberValue == NaN ? 0 : totalNumberValue;
+        $('#total_value_number').val(totalNumberValue);
+
+    }
+
+    // Submit Form Using Ajax
+    $('#product_form').submit(function(e){
+        e.preventDefault();   
+
+        let required_field_array = [];
+        let product_name = $('#product_name').val();
+        let quantity_in_stock = $('#quantity_in_stock').val();
+        let price_per_item = $('#price_per_item').val();
+        let total_value_number = $('#total_value_number').val();
+
+        let data = 
+        {
+            'product_name'      : product_name,
+            'quantity_in_stock' : quantity_in_stock,
+            'price_per_item'    : price_per_item,
+            'total_value_number': total_value_number,
         }
-        if (required_field_array[i].includes('quantity_in_stock')) {
-            custom_validation_message_array.push("Quantity in Stock");
+        
+        for (const key in data) {
+            if (data[key] == [] || data[key] == NaN) {
+                required_field_array.push(key);
+            }
         }
-        if (required_field_array[i].includes('price_per_item')) {
-            custom_validation_message_array.push("Price Per Item");
+
+        if (required_field_array.length > 0) {
+            validate(required_field_array);
         }
-        if (required_field_array[i].includes('total_value_number')) {
-            custom_validation_message_array.push("Total value Number");
+        else {
+            $.ajax({
+                type: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{route('product.store')}}",
+                data: {
+                    data
+                },
+                dataType: "json",
+                success: function (response) {
+                    console.log("response",response);
+                    if(response.status) {
+                        fetchProducts();
+                        toastr.success("Product Added Successfully");
+                        $('#product_form')[0].reset();
+                    }else {
+                        toastr.error("Something went wrong");
+                    }
+                }
+            });
         }
+    });
+
+    // Validate Form and show error messages
+    function validate(required_field_array) {
+
+        let custom_validation_message_array = [];
+        let reverse_custom_validation_message_array = []; 
+
+        for (let i = 0; i < required_field_array.length; i++) {
+            if (required_field_array[i].includes('product_name')) {
+                custom_validation_message_array.push("Product Name");
+            }
+            if (required_field_array[i].includes('quantity_in_stock')) {
+                custom_validation_message_array.push("Quantity in Stock");
+            }
+            if (required_field_array[i].includes('price_per_item')) {
+                custom_validation_message_array.push("Price Per Item");
+            }
+            if (required_field_array[i].includes('total_value_number')) {
+                custom_validation_message_array.push("Total value Number");
+            }
         }
+
+        //Reverse the array in order to asecending form
         reverse_custom_validation_message_array = custom_validation_message_array.reverse();
+
         for (let j = 0; j < reverse_custom_validation_message_array.length; j++) {
             toastr.error(reverse_custom_validation_message_array[j] + " is required");
         }
