@@ -63,8 +63,6 @@
                 <th scope="col">Price per Item</th>
                 <th scope="col">Total Value Number</th>
                 <th scope="col">Created At</th>
-                <th scope="col">Grand Total</th>
-                {{-- <th scope="col">Action</th> --}}
             </tr>
         </thead>
         <tbody id="tbody">
@@ -115,7 +113,7 @@
                     });
                     html+=`
                     <tr>
-                        <td colspan="6"></td>
+                        <td colspan="4"></td>
                         <td class="grand_total_col">${grand_total}</td>
                     </tr>`;
                     $('#tbody').append(html);
