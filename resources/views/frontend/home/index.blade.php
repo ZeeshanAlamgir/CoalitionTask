@@ -81,11 +81,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxy/1.6.1/scripts/jquery.ajaxy.min.js" integrity="sha512-bztGAvCE/3+a1Oh0gUro7BHukf6v7zpzrAb3ReWAVrt+bVNNphcl2tDTKCBr5zk7iEDmQ2Bv401fX3jeVXGIcA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 
-    let quantity_in_stock = 0,price_per_item = 0, totalNumberValue = 0;
+    // Initialize variable
+    let quantity_in_stock = 0, price_per_item = 0, totalNumberValue = 0;
+    
+    // Page full loaded fetch the products
     $(document).ready(function () {
         fetchProducts();
     });
 
+    // Fetch Products
     function fetchProducts() {
         $.ajax({
             type: "GET",
@@ -97,15 +101,16 @@
                     $('#tbody').empty();
                     response.data.forEach((product,index) => {
                         grand_total += parseInt(product.total_value_number);
-                        html+=`<tr>
-                            <td>${index+1}</td>
-                            <td>${product.product_name}</td>
-                            <td>${product.quantity_in_stock}</td>
-                            <td>${product.price_per_item}</td>
-                            <td class="product_total_value_number">${product.total_value_number}</td>
-                            <td>${product.created_at}</td>
-                            <td></td>
-                        </tr>`;
+                        html+=`
+                            <tr>
+                                <td>${index+1}</td>
+                                <td>${product.product_name}</td>
+                                <td>${product.quantity_in_stock}</td>
+                                <td>${product.price_per_item}</td>
+                                <td class="product_total_value_number">${product.total_value_number}</td>
+                                <td>${product.created_at}</td>
+                                <td></td>
+                            </tr>`;
                         
                     });
                     html+=`
@@ -123,6 +128,7 @@
     //For Quantity In Stock
     $(document).on('input','#quantity_in_stock',function(){
 
+        console.log("quantity_in_stock after price_per_item => ",price_per_item);
         quantity_in_stock = $(this).val();
         quantity_in_stock = quantity_in_stock <= 0 ? 0 : parseInt(quantity_in_stock);
         resetValue('#quantity_in_stock',quantity_in_stock);
@@ -132,6 +138,7 @@
 
     //For Price Per Item
     $(document).on('input','#price_per_item',function(){
+        console.log("price_per_item after quantity_in_stock => ",quantity_in_stock);
 
         price_per_item = $(this).val();
         price_per_item = price_per_item <= 0 ? 0 : parseInt(price_per_item);
