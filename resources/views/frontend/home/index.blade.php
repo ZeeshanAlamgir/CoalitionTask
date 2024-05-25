@@ -54,6 +54,8 @@
         </div>
     </form>
 
+    <h2 class="text-center mt-4">Product Listing</h2>
+
     <table class="mt-5 table table-striped" id="productsTable">
         <thead>
             <tr>
@@ -80,7 +82,6 @@
 <script>
 
     // Initialize variable
-    let quantity_in_stock = 0, price_per_item = 0, totalNumberValue = 0;
     
     // Page full loaded fetch the products
     $(document).ready(function () {
@@ -100,21 +101,22 @@
                     response.data.forEach((product,index) => {
                         grand_total += parseInt(product.total_value_number);
                         html+=`
-                            <tr>
-                                <td>${index+1}</td>
-                                <td>${product.product_name}</td>
-                                <td>${product.quantity_in_stock}</td>
-                                <td>${product.price_per_item}</td>
-                                <td class="product_total_value_number">${product.total_value_number}</td>
-                                <td>${product.created_at}</td>
-                                <td></td>
-                            </tr>`;
+                        <tr>
+                            <td>${index+1}</td>
+                            <td>${product.product_name}</td>
+                            <td>${product.quantity_in_stock}</td>
+                            <td>${product.price_per_item}</td>
+                            <td class="product_total_value_number">${product.total_value_number}</td>
+                            <td>${product.created_at}</td>
+                            <td></td>
+                        </tr>`;
                         
                     });
                     html+=`
                     <tr>
                         <td colspan="4"></td>
                         <td class="grand_total_col">${grand_total}</td>
+                        <td colspan="2"></td>
                     </tr>`;
                     $('#tbody').append(html);
                 }               
@@ -126,8 +128,8 @@
     //For Quantity In Stock
     $(document).on('input','#quantity_in_stock',function(){
 
-        console.log("quantity_in_stock after price_per_item => ",price_per_item);
-        quantity_in_stock = $(this).val();
+        let quantity_in_stock = $(this).val();
+        let price_per_item = $('#price_per_item').val();
         quantity_in_stock = quantity_in_stock <= 0 ? 0 : parseInt(quantity_in_stock);
         resetValue('#quantity_in_stock',quantity_in_stock);
         calculateTotalNumberValue(quantity_in_stock,price_per_item);
@@ -136,9 +138,9 @@
 
     //For Price Per Item
     $(document).on('input','#price_per_item',function(){
-        console.log("price_per_item after quantity_in_stock => ",quantity_in_stock);
 
         price_per_item = $(this).val();
+        let quantity_in_stock = $('#quantity_in_stock').val();
         price_per_item = price_per_item <= 0 ? 0 : parseInt(price_per_item);
         resetValue('#price_per_item',price_per_item);
         calculateTotalNumberValue(quantity_in_stock,price_per_item);
@@ -153,6 +155,7 @@
     // Calculate Total Number Value 
     function calculateTotalNumberValue(quantity_in_stock,price_per_item) {
 
+        let totalNumberValue = 0;
         quantity_in_stock = quantity_in_stock == NaN ? 0 : parseInt(quantity_in_stock);
         totalNumberValue = quantity_in_stock * price_per_item;
         $totalNumberValue = totalNumberValue == NaN ? 0 : totalNumberValue;
@@ -199,7 +202,6 @@
                 },
                 dataType: "json",
                 success: function (response) {
-                    console.log("response",response);
                     if(response.status) {
                         fetchProducts();
                         toastr.success("Product Added Successfully");
