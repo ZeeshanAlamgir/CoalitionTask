@@ -61,10 +61,10 @@
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Product Name</th>
-                <th scope="col">Qty in Stock</th>
+                <th scope="col">Quantity in Stock</th>
                 <th scope="col">Price per Item</th>
+                <th scope="col">Datetime submitted</th>
                 <th scope="col">Total Value Number</th>
-                <th scope="col">Created At</th>
             </tr>
         </thead>
         <tbody id="tbody">
@@ -106,17 +106,17 @@
                             <td>${product.product_name}</td>
                             <td>${product.quantity_in_stock}</td>
                             <td>${product.price_per_item}</td>
-                            <td class="product_total_value_number">${product.total_value_number}</td>
                             <td>${product.created_at}</td>
+                            <td class="product_total_value_number">${product.total_value_number}</td>
                             <td></td>
                         </tr>`;
                         
                     });
                     html+=`
                     <tr>
-                        <td colspan="4"></td>
+                        <td colspan="5"></td>
                         <td class="grand_total_col">${grand_total}</td>
-                        <td colspan="2"></td>
+                        <td colspan="1"></td>
                     </tr>`;
                     $('#tbody').append(html);
                 }               
