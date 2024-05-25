@@ -33,7 +33,7 @@ class ProductController extends Controller
     {
         if( $request->ajax() )
             $data['products'] = $this->product->getProductsByAjax();
-        if( $data['products'] > 0 )
+        if( count( $data['products'] ) > 0 )
             return apiSuccessResponse( $data['products'] );
         else
             return apiErrorResponse();
