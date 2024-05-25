@@ -40,8 +40,15 @@ class ProductService implements ProductInterface
     public function getProductsByAjax(  )
     {
         $json_storage_file = storage_path('app/product.json');
-        $json_data = file_get_contents($json_storage_file);
-        $products = json_decode($json_data, true);
-        return $products;
+        $json_data = file_get_contents( $json_storage_file );
+        $products = json_decode( $json_data, true );
+        $product_collection = collect( $products );
+        $sorted_products = self::sortByAsc( $product_collection , 'created_at' );
+        return $sorted_products;
+    }
+
+    public static function sortByAsc( $data , $column='created_at' )
+    {
+        return $data->sortByDesc( $column )->values()->all();
     }
 }
